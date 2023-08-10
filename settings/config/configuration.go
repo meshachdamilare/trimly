@@ -37,7 +37,7 @@ var (
 func Setup() {
 	Config = &Configuration{}
 
-	viper.SetConfigName("sample")
+	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
 
