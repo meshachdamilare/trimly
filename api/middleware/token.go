@@ -15,9 +15,8 @@ type SignClaims struct {
 	jwt.RegisteredClaims
 }
 
-var key = config.Config.Secret_Key
-
 func CreateToken(t time.Duration, id, email, role string) (string, error) {
+	var key = config.Config.Secret_Key
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, SignClaims{
 		Email: email,
 		Role:  role,
@@ -37,6 +36,7 @@ func CreateToken(t time.Duration, id, email, role string) (string, error) {
 }
 
 func ValidateToken(tokenString string) (*SignClaims, error) {
+	var key = config.Config.Secret_Key
 	parsedToken, err := jwt.ParseWithClaims(tokenString, &SignClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

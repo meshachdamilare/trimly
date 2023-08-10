@@ -34,7 +34,7 @@ func NewUserService(dbRepo storage.RepoInterface) UserService {
 }
 
 func (u *userService) CreateUser(signinReq *model.SignUp) error {
-	var user *model.User
+	user := new(model.User)
 	if signinReq.Password != signinReq.PasswordConfirm {
 		return fmt.Errorf("passwords not match")
 	}
@@ -98,7 +98,7 @@ func (u *userService) GetUserByIdOrEmail(idOrEmail string) (*model.User, error) 
 	user, err := u.dbRepo.GetUserByIdOrEmail(context.TODO(), idOrEmail)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("email or id ot found")
+			return nil, fmt.Errorf("email or id not found")
 		}
 		return nil, err
 	}

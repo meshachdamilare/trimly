@@ -27,12 +27,11 @@ func (handler *UrlHandler) Redirect(c echo.Context) error {
 
 	url, err := handler.urlService.Find(code)
 	if err != nil {
-
-		if errors.Is(errors.Cause(err), errors.New(constant.ErrRedirectNotFound)) {
-			rd := utils.ErrorResponse(http.StatusNotFound, constant.StatusFailed, err.Error(), nil)
+		if errors.Is(err, errors.New("url-code not found")) {
+			rd := utils.ErrorResponse(http.StatusNotFound, constant.StatusFailed, err.Error(), "url-code not found")
 			return c.JSON(http.StatusNotFound, rd)
 		}
-		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusInternalServerError, rd)
 	}
 	// to debug the visit count
@@ -41,20 +40,20 @@ func (handler *UrlHandler) Redirect(c echo.Context) error {
 }
 
 func (handler *UrlHandler) TrimUrl(c echo.Context) error {
-	req := new(model.URLRequest)
+	var req model.URLRequest
 	if err := c.Bind(&req); err != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), "Binding error")
 		return c.JSON(http.StatusBadRequest, rd)
 	}
 
 	if validationErr := validator.New().Struct(req); validationErr != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, validationErr.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, validationErr.Error(), "Validation error")
 		return c.JSON(http.StatusBadRequest, rd)
 	}
 	userId := c.Get("userId").(string)
-	url, err := handler.urlService.Store(req, userId)
+	url, err := handler.urlService.Store(&req, userId)
 	if err != nil {
-		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusInternalServerError, rd)
 	}
 	rd := utils.SuccessResponse(http.StatusCreated, url)
@@ -65,7 +64,7 @@ func (handler *UrlHandler) GetAllUrls(c echo.Context) error {
 	userId := c.Get("userId").(string)
 	urls, err := handler.urlService.GetAllURLs(userId)
 	if err != nil {
-		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusInternalServerError, rd)
 	}
 	rd := utils.SuccessResponse(http.StatusOK, urls)

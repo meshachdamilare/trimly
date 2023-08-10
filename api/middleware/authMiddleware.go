@@ -23,12 +23,12 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if accessToken == "" {
-			rd := utils.ErrorResponse(http.StatusUnauthorized, constant.StatusFailed, "no token provided", nil)
+			rd := utils.ErrorResponse(http.StatusUnauthorized, constant.StatusFailed, "no token provided", "Unauthorized error")
 			return c.JSON(http.StatusUnauthorized, rd)
 		}
 		claims, err := ValidateToken(accessToken)
 		if err != nil {
-			rd := utils.ErrorResponse(http.StatusUnauthorized, constant.StatusFailed, err.Error(), nil)
+			rd := utils.ErrorResponse(http.StatusUnauthorized, constant.StatusFailed, err.Error(), "Unauthorized error")
 			return c.JSON(http.StatusUnauthorized, rd)
 		}
 		userId := claims.ID

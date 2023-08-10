@@ -63,8 +63,8 @@ func dsn() string {
 // migrateDB creates db schemas
 func migrateDB() error {
 	err := db.AutoMigrate(
+		&model.User{},
 		&model.URL{},
-		//	&model.User{},
 	)
 	if err != nil {
 		return err

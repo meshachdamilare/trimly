@@ -15,6 +15,7 @@ func SetUserRouter(e *echo.Echo) *echo.Echo {
 
 	userGrp := e.Group("/users")
 	{
+
 		authGrp := userGrp.Group("/auth")
 		{
 			authGrp.POST("/register", userHandler.Register)
@@ -22,10 +23,10 @@ func SetUserRouter(e *echo.Echo) *echo.Echo {
 			authGrp.GET("/logout", middleware.AuthMiddleware(userHandler.LogoutUser))
 		}
 
+		userGrp.Use(middleware.AuthMiddleware)
+		userGrp.GET("/me", userHandler.Me)
+		userGrp.GET("/urls", userHandler.GetUserURLs)
+
 	}
-
-	userGrp.Use(middleware.AuthMiddleware)
-	userGrp.GET("/me", userHandler.Me)
-
 	return e
 }

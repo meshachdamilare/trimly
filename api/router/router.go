@@ -19,6 +19,10 @@ func Setup() *echo.Echo {
 	SetUrlRouter(e)
 	SetUserRouter(e)
 
+	e.GET("/hello", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "Everything works")
+	})
+
 	e.RouteNotFound("/*", func(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"name":    "Not Found",

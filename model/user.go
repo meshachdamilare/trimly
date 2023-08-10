@@ -5,14 +5,14 @@ import (
 )
 
 type User struct {
-	ID        string    `json:"id,omitempty" gorm:"column:id;primaryKey;index;unique;not null;type:varchar(50)"`
-	Name      string    `json:"name" gorm:"column:name;not null;type:varchar(100)"`
-	Email     string    `json:"email" gorm:"column:email;index;unique;not null;type:varchar(100)"`
-	Password  string    `json:"password" gorm:"column:password;type:varchar(100);not null"`
-	Role      string    `json:"role" gorm:"column:role;not null;type:varchar(10)"`
+	ID        string    `json:"id,omitempty" gorm:"primaryKey;index;unique;not null;type:varchar(50)"`
+	Name      string    `json:"name" gorm:"not null;type:varchar(100)"`
+	Email     string    `json:"email" gorm:"index;unique;not null;type:varchar(100)"`
+	Password  string    `json:"password" gorm:"type:varchar(100);not null"`
+	Role      string    `json:"role" gorm:"not null;type:varchar(10)"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	URLs      []URL     `json:"URLs" gorm:"column:URLs;foreignKey:user_id;index"`
+	URLs      []URL     `json:"URLs" gorm:"foreignKey:UserId"`
 }
 
 type SignUp struct {

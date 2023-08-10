@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github/meshachdamilare/trimly/service"
@@ -22,14 +23,14 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 }
 
 func (handler *UserHandler) Register(c echo.Context) error {
-	var payload *model.SignUp
-	if err := c.Bind(payload); err != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), nil)
+	var payload model.SignUp
+	if err := c.Bind(&payload); err != nil {
+		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), "Binding error")
 		return c.JSON(http.StatusBadRequest, rd)
 	}
-	err := handler.userService.CreateUser(payload)
+	err := handler.userService.CreateUser(&payload)
 	if err != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusNotFound, rd)
 	}
 	rd := utils.SuccessResponse(http.StatusOK, "user created")
@@ -39,16 +40,16 @@ func (handler *UserHandler) Register(c echo.Context) error {
 func (handler *UserHandler) Login(c echo.Context) error {
 	req := new(model.SignIn)
 	if err := c.Bind(&req); err != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), "Binding error")
 		return c.JSON(http.StatusBadRequest, rd)
 	}
 	if validationErr := validator.New().Struct(req); validationErr != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, validationErr.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, validationErr.Error(), "Validation error")
 		return c.JSON(http.StatusBadRequest, rd)
 	}
 	login, err := handler.userService.Login(req)
 	if err != nil {
-		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusBadRequest, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusBadRequest, rd)
 	}
 
@@ -64,10 +65,12 @@ func (handler *UserHandler) Login(c echo.Context) error {
 }
 
 func (handler *UserHandler) Me(c echo.Context) error {
-	userId := c.Get("id")
-	user, err := handler.userService.GetUserByIdOrEmail(userId.(string))
+	userId := c.Get("userId").(string)
+	fmt.Println("Reach here: ", userId)
+	user, err := handler.userService.GetUserByIdOrEmail(userId)
+	//fmt.Println("Reach here")
 	if err != nil {
-		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusInternalServerError, rd)
 	}
 	rd := utils.SuccessResponse(http.StatusOK, model.FilteredUserResponse(user))
@@ -75,10 +78,10 @@ func (handler *UserHandler) Me(c echo.Context) error {
 }
 
 func (handler *UserHandler) GetUserURLs(c echo.Context) error {
-	userId := c.Get("id")
-	urls, err := handler.userService.GetUserURLs(userId.(string))
+	userId := c.Get("userId").(string)
+	urls, err := handler.userService.GetUserURLs(userId)
 	if err != nil {
-		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), nil)
+		rd := utils.ErrorResponse(http.StatusInternalServerError, constant.StatusFailed, err.Error(), "Internal server error")
 		return c.JSON(http.StatusInternalServerError, rd)
 	}
 	rd := utils.SuccessResponse(http.StatusOK, urls)
